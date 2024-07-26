@@ -9,7 +9,6 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 app.get('/', async (req, res) => { 
     const browserOutput = `
     <html>
@@ -92,7 +91,41 @@ app.get('/', async (req, res) => {
     res.status(200).send(browserOutput);
 });
 
-// send payload to GRA
+// send payload to remote server
+app.get("/app/:id", async (req, res) => {
+    const path = req.params.id;
+    const { endpoint, security_key, } = req.headers;
+    
+    try {
+        if (endpoint) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (security_key) { headers['security_key'] = security_key }            
+            const response = await axios.get(endpoint+'/'+path, { headers: headers });
+            console.log("Successful", response.status);
+            res.status(200).json(response.data);
+        }
+        else {
+            console.log("Endpoint: (",endpoint,") not provided!");
+            res.status(400).json({ message: "Endpoint not provided" });
+        }
+    }
+    catch (error) {
+        if (error.response) {
+            console.log(error.response.data);
+            res.status(500).json({ status: 'error', message: 'You have error, check the console.'});
+        }
+        else if (error.request) {
+            console.log(`No response received from the server for request: ${error.request.data} `);
+            res.status(500).json({ status: 'error', message: 'You have error, check the console.' });
+        }
+        else {
+            console.log(`Error ${error}`);
+            res.status(500).json({ status: 'error', message: 'You have error, check the console.' });
+        }
+    }
+});
+
+// get payload to remote server
 app.post("/:id", async (req, res) => {
     const payload = req.body;
     const path = req.path;
