@@ -160,13 +160,19 @@ app.post("/:id", async (req, res) => {
     }
 });
 
-app.listen(7100, async () => {
-    console.log(`Server is active on port 7100`);
-    exec('start http://localhost:7100', (err, stdout, stderr) => {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log(stdout);
-    });
+const PORT = process.env.PORT || 7100;
+
+app.listen(PORT, () => {
+    console.log(`Server is active on port ${PORT}`);
 });
+
+// app.listen(7100, async () => {
+//     console.log(`Server is active on port 7100`);
+//     exec('start http://localhost:7100', (err, stdout, stderr) => {
+//         if (err) {
+//             console.error(err);
+//             return;
+//         }
+//         console.log(stdout);
+//     });
+// });
